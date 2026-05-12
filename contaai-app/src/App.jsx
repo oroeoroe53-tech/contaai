@@ -1,4 +1,7 @@
 import { useState, useEffect } from "react";
+import { supabase } from "./lib/supabaseClient";
+import { storage } from "./lib/storage";
+import AuthScreenExternal from "./components/AuthScreen";
 
 const T = {
   navy: "#09111F", navyMid: "#0F1A2E", navyLight: "#172338", border: "#1E3050",
@@ -6,43 +9,6 @@ const T = {
   green: "#27C98A", red: "#EF5050", blue: "#3A8BF5", purple: "#9B6DFF",
   teal: "#00C9A7", pink: "#FF6B9D",
   chalk: "#EEE9E3", dim: "#7A8FA8", white: "#FFFFFF",
-};
-
-const SUPABASE_URL = "https://ppzbzlvkjgipbhedsntu.supabase.co";
-const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBwemJ6bHZramdpcGJoZWRzbnR1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg0MDcwMzAsImV4cCI6MjA5Mzk4MzAzMH0.N3WRFBLlbThzbzjJGbDFG-m2SsoS3d8dcBmnYZuwHPY";
-
-const sb = {
-  async auth(email, pass, isSignUp) {
-    const url = isSignUp
-      ? `${SUPABASE_URL}/auth/v1/signup`
-      : `${SUPABASE_URL}/auth/v1/token?grant_type=password`;
-    try {
-      const res = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", apikey: SUPABASE_KEY },
-        body: JSON.stringify({ email, password: pass }),
-      });
-      const data = await res.json();
-      return data.access_token
-        ? { success: true, token: data.access_token, user: data.user }
-        : { success: false, error: data.error_description || data.error || "Error" };
-    } catch (e) {
-      return { success: false, error: e.message };
-    }
-  },
-};
-
-const storage = {
-  async save(table, data, token, isDemo) {
-    const item = { ...data, id: Date.now(), created_at: new Date().toISOString() };
-    const key = `contaai_${table}`;
-    const existing = JSON.parse(localStorage.getItem(key) || "[]");
-    localStorage.setItem(key, JSON.stringify([item, ...existing]));
-    return item;
-  },
-  async list(table, token, isDemo) {
-    return JSON.parse(localStorage.getItem(`contaai_${table}`) || "[]");
-  },
 };
 
 const CSS = `
@@ -251,53 +217,6 @@ function ModeSelector({ onSelect }) {
 }
 
 // ── AUTH ───────────────────────────────────────────────────────────────────
-function AuthScreen({ onAuth, showToast }) {
-  const [mode, setMode] = useState("login");
-  const [email, setEmail] = useState("");
-  const [pass, setPass] = useState("");
-  const [loading, setLoading] = useState(false);
-
-  async function handleAuth() {
-    if (!email || !pass) { showToast("Completa email y contraseña", T.red); return; }
-    setLoading(true);
-    const res = await sb.auth(email, pass, mode === "register");
-    setLoading(false);
-    if (res.success) {
-      onAuth({ token: res.token, email, isSupabase: true });
-    } else {
-      showToast(res.error, T.red);
-    }
-  }
-
-  return (
-    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", padding: "20px", background: `radial-gradient(ellipse at 30% 20%, ${T.amber}08 0%, transparent 60%), ${T.navy}` }}>
-      <div className="fu" style={{ width: "100%", maxWidth: 400 }}>
-        <div style={{ textAlign: "center", marginBottom: 36 }}>
-          <div className="serif" style={{ fontSize: 34, color: T.amber, marginBottom: 6 }}>ContaAI</div>
-          <div style={{ color: T.dim, fontSize: 14 }}>Contabilidad inteligente España</div>
-        </div>
-        <Card>
-          <div style={{ display: "flex", background: T.navyLight, borderRadius: 10, padding: 4, marginBottom: 22, gap: 4 }}>
-            {["login", "register"].map(m => (
-              <button key={m} onClick={() => setMode(m)} style={{ flex: 1, padding: "9px", border: "none", borderRadius: 8, cursor: "pointer", background: mode === m ? T.amber : "transparent", color: mode === m ? T.navy : T.dim, fontWeight: 600, fontSize: 13 }}>
-                {m === "login" ? "Entrar" : "Crear cuenta"}
-              </button>
-            ))}
-          </div>
-          <Input label="Email" value={email} onChange={e => setEmail(e.target.value)} placeholder="tu@email.es" type="email" />
-          <Input label="Contraseña" value={pass} onChange={e => setPass(e.target.value)} placeholder="••••••••" type="password" />
-          <Btn full onClick={handleAuth} disabled={loading} style={{ marginBottom: 12 }}>
-            {loading ? <span style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}><Spinner />Conectando...</span> : mode === "login" ? "Entrar" : "Crear cuenta"}
-          </Btn>
-          <div style={{ borderTop: `1px solid ${T.border}`, paddingTop: 14, textAlign: "center" }}>
-            <div style={{ color: T.dim, fontSize: 12, marginBottom: 10 }}>Sin Supabase configurado</div>
-            <Btn variant="outline" full onClick={() => onAuth({ token: "demo", email: "demo@contaai.es", isDemo: true })}>🎯 Modo demo</Btn>
-          </div>
-        </Card>
-      </div>
-    </div>
-  );
-}
 
 // ── FAMILY CATS ────────────────────────────────────────────────────────────
 const FAMILY_CATS = [
@@ -1234,7 +1153,7 @@ export default function App() {
   if (!session) return (
     <>
       <InjectStyle css={CSS} />
-      <AuthScreen onAuth={s => setSession(s)} showToast={showToast} />
+      <AuthScreenExternal onAuth={s => setSession(s)} showToast={showToast} />
       {toast && <Toast msg={toast.msg} color={toast.color} onClose={() => setToast(null)} />}
     </>
   );

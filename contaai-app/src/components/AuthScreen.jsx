@@ -9,26 +9,28 @@ export default function AuthScreen({ onAuth, showToast }) {
 
   async function handleSubmit() {
     setLoading(true)
-    if (mode === 'login') {
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password })
-      if (error) { 
-        showToast('Error: ' + error.message, '#ef4444')
-        setLoading(false)
-        return 
+    try {
+      if (mode === 'login') {
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+        if (error) { 
+          showToast('Error: ' + error.message, '#ef4444')
+          setLoading(false)
+          return 
+        }
+        onAuth({ email: data.user.email, token: data.session.access_token, isDemo: false })
+      } else {
+        const { data, error } = await supabase.auth.signUp({ email, password })
+        if (error) { 
+          showToast('Error: ' + error.message, '#ef4444')
+          setLoading(false)
+          return 
+        }
+        // Loguearse automáticamente después de registrarse
+        const { data: loginData } = await supabase.auth.signInWithPassword({ email, password })
+        onAuth({ email: loginData.user.email, token: loginData.session.access_token, isDemo: false })
       }
-      onAuth({ email: data.user.email, token: data.session.access_token, isDemo: false })
-    } else {
-      const { data, error } = await supabase.auth.signUp({ email, password })
-      if (error) { 
-        showToast('Error: ' + error.message, '#ef4444')
-        setLoading(false)
-        return 
-      }
-      showToast('✓ Cuenta creada. Revisa tu email para confirmar', '#27C98A')
-      setEmail('')
-      setPassword('')
-      // Cambiar a login después de registrarse
-      setTimeout(() => setMode('login'), 2000)
+    } catch (err) {
+      showToast('Error: ' + err.message, '#ef4444')
     }
     setLoading(false)
   }

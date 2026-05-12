@@ -184,14 +184,14 @@ function ModeSelector({ onSelect }) {
             {
               mode: "business", icon: "💼", color: T.amber,
               title: "Autónomo / Pyme",
-              desc: "Gestión fiscal profesional con facturación IVA/IRPF, modelos AEAT y control de gastos deducibles.",
+              description: "Gestión fiscal profesional con facturación IVA/IRPF, modelos AEAT y control de gastos deducibles.",
               features: ["📄 Facturación IVA/IRPF", "🏛 Modelos 303 y 130", "🚗 Kilometraje AEAT (0,26€/km)", "💳 Gastos deducibles", "⚡ Asesor fiscal IA"],
               cta: "Entrar como Autónomo →",
             },
             {
               mode: "family", icon: "🏠", color: T.teal,
               title: "Personal / Familia",
-              desc: "Control de presupuesto familiar, gastos del hogar, ahorro mensual y balance de ingresos.",
+              description: "Control de presupuesto familiar, gastos del hogar, ahorro mensual y balance de ingresos.",
               features: ["🏡 Hogar (alquiler, luz, agua)", "🛒 Alimentación y supermercado", "🎓 Educación / extraescolares", "💰 Ahorro y fondo emergencia", "🛡 Seguros y préstamos"],
               cta: "Entrar como Familia →",
             },
@@ -202,7 +202,7 @@ function ModeSelector({ onSelect }) {
               onMouseLeave={e => { e.currentTarget.style.borderColor = m.color + "44"; e.currentTarget.style.transform = "none"; e.currentTarget.style.boxShadow = "none"; }}>
               <div style={{ fontSize: 48, marginBottom: 14 }}>{m.icon}</div>
               <div className="serif" style={{ fontSize: 22, color: m.color, marginBottom: 10 }}>{m.title}</div>
-              <div style={{ color: T.dim, fontSize: 13, lineHeight: 1.7, marginBottom: 18 }}>{m.desc}</div>
+              <div style={{ color: T.dim, fontSize: 13, lineHeight: 1.7, marginBottom: 18 }}>{m.description}</div>
               {m.features.map(f => (
                 <div key={f} style={{ fontSize: 12, color: T.chalk, background: m.color + "12", borderRadius: 8, padding: "5px 10px", marginBottom: 5 }}>{f}</div>
               ))}
@@ -277,7 +277,7 @@ function BusinessDashboard({ session, setScreen }) {
             : txns.slice(0, 5).map(t => (
               <div key={t.id} style={{ display: "flex", justifyContent: "space-between", padding: "8px 0", borderBottom: `1px solid ${T.border}22` }}>
                 <div>
-                  <div style={{ fontSize: 13, fontWeight: 500 }}>{t.desc}</div>
+                  <div style={{ fontSize: 13, fontWeight: 500 }}>{t.description}</div>
                   <div style={{ fontSize: 11, color: T.dim }}>{t.date}</div>
                 </div>
                 <div className="mono" style={{ color: t.type === "income" ? T.green : T.red, fontWeight: 600 }}>
@@ -462,7 +462,7 @@ Categorización guía:
 
   async function confirmSave() {
     await onSave({
-      desc: editing.descripcion || editing.tienda,
+      description: editing.descriptionripcion || editing.tienda,
       amount: parseFloat(editing.total),
       cat: editing.categoria,
       subcat: editing.subcategoria,
@@ -538,7 +538,7 @@ Categorización guía:
           </div>
 
           {/* Campos editables */}
-          <Input label="Descripción" value={editing.descripcion} onChange={e => setEditing(p => ({ ...p, descripcion: e.target.value }))} />
+          <Input label="Descripción" value={editing.descriptionripcion} onChange={e => setEditing(p => ({ ...p, descripcion: e.target.value }))} />
           <Input label="Total (€)" value={editing.total} onChange={e => setEditing(p => ({ ...p, total: e.target.value }))} type="number" prefix="€" />
           <Sel label="Categoría" value={editing.categoria} onChange={e => setEditing(p => ({ ...p, categoria: e.target.value }))}
             options={FAMILY_CATS.map(c => ({ value: c.id, label: `${c.icon} ${c.label}` }))} />
@@ -556,7 +556,7 @@ Categorización guía:
           <div style={{ fontSize: 56, marginBottom: 14 }}>✅</div>
           <div className="serif" style={{ fontSize: 20, marginBottom: 8, color: T.green }}>¡Gasto guardado!</div>
           <div style={{ color: T.dim, fontSize: 13, marginBottom: 20 }}>
-            {editing.descripcion} — <span className="mono" style={{ color: T.red }}>{editing.total}€</span> añadido a <strong>{cat?.label}</strong>
+            {editing.descriptionripcion} — <span className="mono" style={{ color: T.red }}>{editing.total}€</span> añadido a <strong>{cat?.label}</strong>
           </div>
           <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
             <Btn variant="outline" onClick={() => { setStep("capture"); setResult(null); setEditing(null); setImagePreview(null); }}>
@@ -575,25 +575,25 @@ function FamilyExpenses({ session, showToast }) {
   const [expenses, setExpenses] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [showScanner, setShowScanner] = useState(false);
-  const [form, setForm] = useState({ desc: "", amount: "", cat: "hogar", subcat: "" });
+  const [form, setForm] = useState({ description: "", amount: "", cat: "hogar", subcat: "" });
 
   useEffect(() => { storage.list("family_expenses", session?.token, session?.isDemo).then(d => setExpenses(d || [])); }, []);
 
   const selectedCat = FAMILY_CATS.find(c => c.id === form.cat);
 
   async function addExpense() {
-    if (!form.desc || !form.amount) return;
-    const saved = await storage.save("family_expenses", { desc: form.desc, amount: parseFloat(form.amount), cat: form.cat, subcat: form.subcat, date: new Date().toISOString().slice(0, 10) }, session?.token, session?.isDemo);
+    if (!form.description || !form.amount) return;
+    const saved = await storage.save("family_expenses", { description: form.description, amount: parseFloat(form.amount), cat: form.cat, subcat: form.subcat, date: new Date().toISOString().slice(0, 10) }, session?.token, session?.isDemo);
     setExpenses(p => [saved, ...p]);
     setShowModal(false);
-    setForm({ desc: "", amount: "", cat: "hogar", subcat: "" });
+    setForm({ description: "", amount: "", cat: "hogar", subcat: "" });
     showToast("Gasto añadido ✓");
   }
 
   async function saveFromScanner(data) {
     const saved = await storage.save("family_expenses", data, session?.token, session?.isDemo);
     setExpenses(p => [saved, ...p]);
-    showToast(`${data.desc} — ${data.amount}€ guardado ✓`);
+    showToast(`${data.description} — ${data.amount}€ guardado ✓`);
   }
 
   return (
@@ -656,7 +656,7 @@ function FamilyExpenses({ session, showToast }) {
               <div key={e.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px", borderRadius: 10, background: T.navyLight, marginBottom: 6 }}>
                 <span style={{ fontSize: 20 }}>{cat?.icon}</span>
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 13, fontWeight: 500 }}>{e.desc}</div>
+                  <div style={{ fontSize: 13, fontWeight: 500 }}>{e.description}</div>
                   <div style={{ fontSize: 11, color: T.dim }}>
                     {e.date} · {cat?.label}{e.subcat ? ` · ${e.subcat}` : ""}
                     {e.via === "scanner" && <span style={{ color: T.teal, marginLeft: 6 }}>📷 IA</span>}
@@ -672,7 +672,7 @@ function FamilyExpenses({ session, showToast }) {
 
       {showModal && (
         <Modal title="Nuevo Gasto Manual" onClose={() => setShowModal(false)}>
-          <Input label="Descripción" value={form.desc} onChange={e => setForm(p => ({ ...p, desc: e.target.value }))} placeholder="Ej: Factura luz mayo" />
+          <Input label="Descripción" value={form.description} onChange={e => setForm(p => ({ ...p, description: e.target.value }))} placeholder="Ej: Factura luz mayo" />
           <Input label="Importe (€)" value={form.amount} onChange={e => setForm(p => ({ ...p, amount: e.target.value }))} type="number" prefix="€" />
           <Sel label="Categoría" value={form.cat} onChange={e => setForm(p => ({ ...p, cat: e.target.value, subcat: "" }))} options={FAMILY_CATS.map(c => ({ value: c.id, label: `${c.icon} ${c.label}` }))} />
           {selectedCat && <Sel label="Subcategoría" value={form.subcat} onChange={e => setForm(p => ({ ...p, subcat: e.target.value }))} options={[{ value: "", label: "Sin especificar" }, ...selectedCat.subs.map(s => ({ value: s, label: s }))]} />}
@@ -690,12 +690,12 @@ function FamilyExpenses({ session, showToast }) {
 function FamilyIncome({ session, showToast }) {
   const [incomes, setIncomes] = useState([]);
   const [showModal, setShowModal] = useState(false);
-  const [form, setForm] = useState({ desc: "", amount: "", type: "nomina" });
+  const [form, setForm] = useState({ description: "", amount: "", type: "nomina" });
 
   useEffect(() => { storage.list("family_incomes", session?.token, session?.isDemo).then(d => setIncomes(d || [])); }, []);
 
   async function add() {
-    if (!form.desc || !form.amount) return;
+    if (!form.description || !form.amount) return;
     const saved = await storage.save("family_incomes", { ...form, amount: parseFloat(form.amount), date: new Date().toISOString().slice(0, 10) }, session?.token, session?.isDemo);
     setIncomes(p => [saved, ...p]);
     setShowModal(false);
@@ -721,7 +721,7 @@ function FamilyIncome({ session, showToast }) {
           : incomes.map(i => (
             <div key={i.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px", borderRadius: 10, background: T.navyLight, marginBottom: 6 }}>
               <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 13, fontWeight: 500 }}>{i.desc}</div>
+                <div style={{ fontSize: 13, fontWeight: 500 }}>{i.description}</div>
                 <div style={{ fontSize: 11, color: T.dim }}>{i.date}</div>
               </div>
               <Pill color={typeColors[i.type]}>{typeLabels[i.type]}</Pill>
@@ -731,7 +731,7 @@ function FamilyIncome({ session, showToast }) {
       </Card>
       {showModal && (
         <Modal title="Nuevo Ingreso" onClose={() => setShowModal(false)}>
-          <Input label="Descripción" value={form.desc} onChange={e => setForm(p => ({ ...p, desc: e.target.value }))} placeholder="Ej: Nómina Juan" />
+          <Input label="Descripción" value={form.description} onChange={e => setForm(p => ({ ...p, description: e.target.value }))} placeholder="Ej: Nómina Juan" />
           <Input label="Importe (€)" value={form.amount} onChange={e => setForm(p => ({ ...p, amount: e.target.value }))} type="number" prefix="€" />
           <Sel label="Tipo" value={form.type} onChange={e => setForm(p => ({ ...p, type: e.target.value }))} options={[{ value: "nomina", label: "🏢 Nómina" }, { value: "extra", label: "⭐ Extra/Bonus" }, { value: "alquiler", label: "🏠 Alquiler" }, { value: "otro", label: "📦 Otro" }]} />
           <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
@@ -847,11 +847,11 @@ function Invoices({ session, showToast }) {
 function Expenses({ session, showToast }) {
   const [expenses, setExpenses] = useState([]);
   const [showModal, setShowModal] = useState(false);
-  const [form, setForm] = useState({ desc: "", amount: "", cat: "Software" });
+  const [form, setForm] = useState({ description: "", amount: "", cat: "Software" });
   useEffect(() => { storage.list("expenses", session?.token, session?.isDemo).then(d => setExpenses(d || [])); }, []);
   async function add() {
-    if (!form.desc || !form.amount) return;
-    const saved = await storage.save("expenses", { desc: form.desc, amount: parseFloat(form.amount), cat: form.cat, date: new Date().toISOString().slice(0, 10) }, session?.token, session?.isDemo);
+    if (!form.description || !form.amount) return;
+    const saved = await storage.save("expenses", { description: form.description, amount: parseFloat(form.amount), cat: form.cat, date: new Date().toISOString().slice(0, 10) }, session?.token, session?.isDemo);
     setExpenses(p => [saved, ...p]); setShowModal(false); showToast("Gasto registrado ✓");
   }
   return (
@@ -865,7 +865,7 @@ function Expenses({ session, showToast }) {
           expenses.map(e => (
             <div key={e.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px", borderRadius: 10, background: T.navyLight, marginBottom: 6 }}>
               <div style={{ flex: 1 }}>
-                <div style={{ fontWeight: 500, fontSize: 14 }}>{e.desc}</div>
+                <div style={{ fontWeight: 500, fontSize: 14 }}>{e.description}</div>
                 <div style={{ fontSize: 11, color: T.dim }}>{e.date} · {e.cat}</div>
               </div>
               <Pill color={T.blue}>deducible</Pill>
@@ -875,7 +875,7 @@ function Expenses({ session, showToast }) {
       </Card>
       {showModal && (
         <Modal title="Nuevo Gasto" onClose={() => setShowModal(false)}>
-          <Input label="Descripción" value={form.desc} onChange={e => setForm(p => ({ ...p, desc: e.target.value }))} placeholder="Adobe CC" />
+          <Input label="Descripción" value={form.description} onChange={e => setForm(p => ({ ...p, description: e.target.value }))} placeholder="Adobe CC" />
           <Input label="Importe" value={form.amount} onChange={e => setForm(p => ({ ...p, amount: e.target.value }))} type="number" prefix="€" />
           <Sel label="Categoría" value={form.cat} onChange={e => setForm(p => ({ ...p, cat: e.target.value }))} options={["Software", "Oficina", "Kilometraje", "Dietas", "Formación", "Otro"].map(c => ({ value: c, label: c }))} />
           <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
@@ -953,7 +953,7 @@ function FiscalReport() {
 
   const MODELOS = [
     {
-      id: "303", name: "Modelo 303", desc: "Autoliquidación IVA trimestral", icon: "🏛", color: T.amber, vence: "20 julio (2T)",
+      id: "303", name: "Modelo 303", description: "Autoliquidación IVA trimestral", icon: "🏛", color: T.amber, vence: "20 julio (2T)",
       campos: [
         { label: "Base imponible (ingresos)", valor: `${ingresos.toLocaleString("es-ES")} €` },
         { label: "IVA repercutido (21%)", valor: `${ivaRep} €` },
@@ -963,7 +963,7 @@ function FiscalReport() {
       nota: "Presenta en la Sede Electrónica AEAT antes del 20 de julio.",
     },
     {
-      id: "130", name: "Modelo 130", desc: "Pago fraccionado IRPF trimestral", icon: "📋", color: T.blue, vence: "20 julio (2T)",
+      id: "130", name: "Modelo 130", description: "Pago fraccionado IRPF trimestral", icon: "📋", color: T.blue, vence: "20 julio (2T)",
       campos: [
         { label: "Ingresos acumulados", valor: `${ingresos.toLocaleString("es-ES")} €` },
         { label: "Gastos deducibles", valor: `−${gastos.toLocaleString("es-ES")} €` },
@@ -973,7 +973,7 @@ function FiscalReport() {
       nota: "Si tienes retenciones en facturas, réstalas del resultado final.",
     },
     {
-      id: "SS", name: "Cuota Autónomos SS", desc: "Seguridad Social mensual", icon: "🛡", color: T.green, vence: "Último día hábil",
+      id: "SS", name: "Cuota Autónomos SS", description: "Seguridad Social mensual", icon: "🛡", color: T.green, vence: "Último día hábil",
       campos: [
         { label: "Base de cotización mínima", valor: "1.000 €" },
         { label: "Cuota mensual 2024", valor: "294,00 €" },
@@ -1006,7 +1006,7 @@ function FiscalReport() {
               {presentado[m.id] && <Pill color={T.green}>✓ Presentado</Pill>}
             </div>
             <div style={{ color: m.color, fontWeight: 700, fontSize: 14, marginBottom: 4 }}>{m.name}</div>
-            <div style={{ color: T.dim, fontSize: 12, marginBottom: 8 }}>{m.desc}</div>
+            <div style={{ color: T.dim, fontSize: 12, marginBottom: 8 }}>{m.description}</div>
             <div style={{ fontSize: 11, color: T.dim, marginBottom: 10 }}>📅 {m.vence}</div>
             <div style={{ fontSize: 12, color: m.color, fontWeight: 600 }}>
               {open === m.id ? "▲ Cerrar" : "▼ Ver detalle"}

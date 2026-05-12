@@ -1,7 +1,7 @@
 {
   "name": "contaai-app",
   "private": true,
-  "version": "0.0.0",
+"build": "vite build"  "version": "0.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -25,3 +25,8 @@
     "vite": "^8.0.10"
   }
 }
+git add .
+git commit -m "fix: quitar --no-lint"
+git push origin main
+
+

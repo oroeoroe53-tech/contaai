@@ -3,6 +3,23 @@ import { supabase } from "./lib/supabaseClient";
 import { storage } from "./lib/storage";
 import AuthScreenExternal from "./components/AuthScreen";
 
+
+function generateProfessionalFiscalPDF(tipo, datos) {
+  const { ingresos, gastos } = datos;
+  const ivaAIngresar = ((ingresos - gastos) * 0.21).toFixed(2);
+  const irpfAIngresar = ((ingresos - gastos) * 0.20).toFixed(2);
+  let txt = `MODELO ${tipo} - ContaAI ${new Date().getFullYear()}
+
+INGRESOS: ${ingresos}€
+GASTOS: ${gastos}€
+A INGRESAR: ${tipo === "303" ? ivaAIngresar : irpfAIngresar}€`;
+  const element = document.createElement("a");
+  element.setAttribute("href", "data:text/plain;charset=utf-8," + encodeURIComponent(txt));
+  element.setAttribute("download", `Modelo_${tipo}_${new Date().getFullYear()}.txt`);
+  document.body.appendChild(element);
+  element.click();
+  document.body.removeChild(element);
+}
 const T = {
   navy: "#09111F", navyMid: "#0F1A2E", navyLight: "#172338", border: "#1E3050",
   amber: "#F5A623", amberL: "#FFD07A", amberGlow: "rgba(245,166,35,0.14)",
@@ -290,6 +307,10 @@ function BusinessDashboard({ session, setScreen }) {
     </div>
   );
 }
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 16 }}>
+        <Btn full onClick={() => { generateProfessionalFiscalPDF("303", { ingresos: 5000, gastos: 1000 }); showToast("Modelo 303 descargado ✓"); }} style={{ background: `linear-gradient(135deg,${T.amber},${T.amberL})`, color: T.navy }}>📄 Modelo 303</Btn>
+        <Btn full onClick={() => { generateProfessionalFiscalPDF("130", { ingresos: 5000, gastos: 1000 }); showToast("Modelo 130 descargado ✓"); }} style={{ background: `linear-gradient(135deg,${T.blue},#5BA8FF)`, color: T.white }}>📋 Modelo 130</Btn>
+      </div>
 
 // ── FAMILY DASHBOARD ───────────────────────────────────────────────────────
 function FamilyDashboard({ session, setScreen }) {
